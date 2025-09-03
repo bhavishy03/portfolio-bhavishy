@@ -44,20 +44,7 @@ Showcasing my projects, skills, and services as a web developer and UI/UX design
 
 ---
 
-## 🛠️ Setup & Run Locally
 
-1. **Clone the repo:**
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   cd your-repo-name
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pnpm install
-   # or
-   npm install
-   ```
 
 3. **Open [http://localhost:3000](http://localhost:3000) in your browser.**
 
@@ -65,7 +52,7 @@ Showcasing my projects, skills, and services as a web developer and UI/UX design
 
 ## 🖼️ Screenshots
 
-![Portfolio Screenshot](./public/your-screenshot.png)
+![Portfolio Screenshot](./public/hero.png)
 
 ---
 
