@@ -868,7 +868,7 @@ const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                   <Download className="mr-2 h-5 w-5" />
                   <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
                   Download Resume
-                  </a>
+ </a>
                 </Button>
               </div>
 

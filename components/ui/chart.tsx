@@ -106,7 +106,6 @@ const ChartTooltip = RechartsPrimitive.Tooltip
 
 function ChartTooltipContent({
   active,
-  payload,
   className,
   indicator = "dot",
   hideLabel = false,
@@ -118,6 +117,7 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
+  ...props
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
     hideLabel?: boolean
@@ -127,6 +127,9 @@ function ChartTooltipContent({
     labelKey?: string
   }) {
   const { config } = useChart()
+
+  // Get payload from props instead of destructuring
+  const payload = (props as any)?.payload
 
   const tooltipLabel = React.useMemo(() => {
     if (hideLabel || !payload?.length) {
