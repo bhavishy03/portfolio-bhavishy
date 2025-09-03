@@ -33,19 +33,22 @@ function hslVarToRgb(hslVar: string): RGB {
   return [r + m, g + m, b + m]
 }
 
-export function ThemedGlobe({
-  className,
-  size = 480,
-  scale = 1.2,
-  speed = 0.005,
-}: {
+interface ThemedGlobeProps {
   className?: string
   size?: number
   scale?: number
   speed?: number
-}) {
+}
+
+export function ThemedGlobe({
+  className = "",
+  size = 480,
+  scale = 1.2,
+  speed = 0.005,
+}: ThemedGlobeProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [ready, setReady] = useState(false)
+  const globeRef = useRef<any>(null)
 
   useEffect(() => {
     setReady(true)
@@ -58,92 +61,136 @@ export function ThemedGlobe({
     let phi = 0
     let width = size
     let height = size
-    const dpi = Math.min(2, window.devicePixelRatio || 1)
+    
+    // Safe device pixel ratio check
+    const dpi = typeof window !== 'undefined' 
+      ? Math.min(2, window.devicePixelRatio || 1) 
+      : 1
 
-    // Read CSS variables for theme colors
-    const root = getComputedStyle(document.documentElement)
-    const primaryVar = root.getPropertyValue("--primary").trim() || "210 100% 50%"
-    const accentVar = root.getPropertyValue("--accent").trim() || "200 94% 65%"
-    const fgVar = root.getPropertyValue("--foreground").trim() || "220 14% 96%"
+    // Safe CSS variables reading with fallbacks
+    let baseColor: RGB = [0.9, 0.9, 0.9]
+    let markerColor: RGB = [0.2, 0.6, 1]
+    let glowColor: RGB = [0.4, 0.8, 1]
 
-    const baseColor = hslVarToRgb(fgVar) as RGB
-    const markerColor = hslVarToRgb(primaryVar) as RGB
-    const glowColor = hslVarToRgb(accentVar) as RGB
+    try {
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const root = getComputedStyle(document.documentElement)
+        const primaryVar = root.getPropertyValue("--primary").trim() || "210 100% 50%"
+        const accentVar = root.getPropertyValue("--accent").trim() || "200 94% 65%"
+        const fgVar = root.getPropertyValue("--foreground").trim() || "220 14% 96%"
+
+        baseColor = hslVarToRgb(fgVar)
+        markerColor = hslVarToRgb(primaryVar)
+        glowColor = hslVarToRgb(accentVar)
+      }
+    } catch (error) {
+      console.warn('Failed to read CSS variables, using defaults:', error)
+    }
 
     canvas.width = width * dpi
     canvas.height = height * dpi
     canvas.style.width = `${width}px`
     canvas.style.height = `${height}px`
 
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: dpi,
-      width: canvas.width,
-      height: canvas.height,
-      phi: 0,
-      theta: 0.25,
-      dark: 0, // we keep base color in sync with theme, so no forced dark tint
-      diffuse: 1.2,
-      mapSamples: 16000,
-      mapBrightness: 2.2,
-      baseColor,
-      markerColor,
-      glowColor,
-      glowPower: 2.5,
-      glowCoefficient: 0.08,
-      // transparent background so only the globe is visible
-      backgroundColor: [0, 0, 0, 0],
-      markerSize: 0.0, // no markers by default (clean look)
-      scale,
-      onRender: (state) => {
-        state.phi = phi
-        phi += speed
-      },
-    })
+    try {
+      const globe = createGlobe(canvas, {
+        devicePixelRatio: dpi,
+        width: canvas.width,
+        height: canvas.height,
+        phi: 0,
+        theta: 0.25,
+        dark: 0,
+        diffuse: 1.2,
+        mapSamples: 16000,
+        mapBrightness: 2.2,
+        baseColor,
+        markerColor,
+        glowColor,
+        markers: [],
+        scale,
+        onRender: (state) => {
+          state.phi = phi
+          phi += speed
+        },
+      })
 
-    // Make it draggable
-    let dragging = false
-    let lastX = 0
-    const onPointerDown = (e: PointerEvent) => {
-      dragging = true
-      lastX = e.clientX
-    }
-    const onPointerUp = () => {
-      dragging = false
-    }
-    const onPointerMove = (e: PointerEvent) => {
-      if (dragging) {
-        const delta = e.clientX - lastX
+      globeRef.current = globe
+
+      // Mouse/touch interaction handlers
+      let dragging = false
+      let lastX = 0
+
+      const onPointerDown = (e: PointerEvent) => {
+        e.preventDefault()
+        dragging = true
         lastX = e.clientX
-        phi += delta / 200
       }
-    }
-    canvas.addEventListener("pointerdown", onPointerDown)
-    window.addEventListener("pointerup", onPointerUp)
-    window.addEventListener("pointermove", onPointerMove)
 
-    // Resize handler
-    const onResize = () => {
-      width = size
-      height = size
-      canvas.width = width * dpi
-      canvas.height = height * dpi
-      canvas.style.width = `${width}px`
-      canvas.style.height = `${height}px`
-    }
-    window.addEventListener("resize", onResize)
+      const onPointerUp = () => {
+        dragging = false
+      }
 
-    return () => {
-      globe.destroy()
-      canvas.removeEventListener("pointerdown", onPointerDown)
-      window.removeEventListener("pointerup", onPointerUp)
-      window.removeEventListener("pointermove", onPointerMove)
-      window.removeEventListener("resize", onResize)
+      const onPointerMove = (e: PointerEvent) => {
+        if (dragging) {
+          const delta = e.clientX - lastX
+          lastX = e.clientX
+          phi += delta / 200
+        }
+      }
+
+      // Event listeners
+      canvas.addEventListener("pointerdown", onPointerDown)
+      if (typeof window !== 'undefined') {
+        window.addEventListener("pointerup", onPointerUp)
+        window.addEventListener("pointermove", onPointerMove)
+      }
+
+      // Cleanup function
+      const cleanup = () => {
+        canvas.removeEventListener("pointerdown", onPointerDown)
+        if (typeof window !== 'undefined') {
+          window.removeEventListener("pointerup", onPointerUp)
+          window.removeEventListener("pointermove", onPointerMove)
+        }
+        if (globeRef.current) {
+          globeRef.current.destroy()
+          globeRef.current = null
+        }
+      }
+
+      return cleanup
+    } catch (error) {
+      console.error('Failed to create globe:', error)
+      return () => {}
     }
   }, [ready, size, scale, speed])
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (globeRef.current) {
+        globeRef.current.destroy()
+        globeRef.current = null
+      }
+    }
+  }, [])
+
+  if (!ready) {
+    return (
+      <div className={`flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
+
   return (
     <div className={className}>
-      <canvas ref={canvasRef} aria-label="Interactive globe" className="block select-none" />
+      <canvas 
+        ref={canvasRef} 
+        aria-label="Interactive globe" 
+        className="block select-none touch-none"
+        style={{ cursor: 'grab' }}
+      />
     </div>
   )
 }
