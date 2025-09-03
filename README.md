@@ -25,7 +25,7 @@ Showcasing my projects, skills, and services as a web developer and UI/UX design
 - [React 19](https://react.dev/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Framer Motion](https://www.framer.com/motion/)
-- [EmailJS](https://www.emailjs.com/) (for contact form)
+- [EmailJS](https://www.emailjs.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 
 ---
@@ -59,23 +59,7 @@ Showcasing my projects, skills, and services as a web developer and UI/UX design
    npm install
    ```
 
-3. **Add environment variables:**
-   - Create a `.env.local` file in the root:
-     ```
-     NEXT_PUBLIC_WHATSAPP_PHONE=919876543210
-     EMAILJS_SERVICE_ID=your_service_id
-     EMAILJS_TEMPLATE_ID=your_template_id
-     EMAILJS_PUBLIC_KEY=your_public_key
-     ```
-
-4. **Run the development server:**
-   ```bash
-   pnpm dev
-   # or
-   npm run dev
-   ```
-
-5. **Open [http://localhost:3000](http://localhost:3000) in your browser.**
+3. **Open [http://localhost:3000](http://localhost:3000) in your browser.**
 
 ---
 
@@ -89,14 +73,3 @@ Showcasing my projects, skills, and services as a web developer and UI/UX design
 
 - **Email:** bhavishy.rajak@gmail.com
 - **Location:** Indore, India
-- **WhatsApp:** [Click to Chat](https://wa.me/919876543210)
-
----
-
-## 📄 License
-
-This project is open source and free to use.
-
----
-
-**Feel free to fork, star, and use this portfolio as inspiration for your own!**
