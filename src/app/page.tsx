@@ -866,7 +866,9 @@ const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                   data-magnetic
                 >
                   <Download className="mr-2 h-5 w-5" />
+                  <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
                   Download Resume
+                  </a>
                 </Button>
               </div>
 
