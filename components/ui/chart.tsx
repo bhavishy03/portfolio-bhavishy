@@ -27,6 +27,16 @@ type ChartConfig = {
   }
 }
 
+const ChartContext = React.createContext<ChartConfig | null>(null)
+
+export const useChart = () => {
+  const context = React.useContext(ChartContext)
+  if (!context) {
+    throw new Error("useChart must be used within a ChartContainer")
+  }
+  return context
+}
+
 interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
 }
@@ -47,14 +57,9 @@ function ChartContainer({
   config: ChartConfig
 }) {
   return (
-    <div className="w-full h-[300px]">
-      {React.Children.map(children, (child) =>
-        React.isValidElement(child)
-          ? // Fixed TypeScript error by casting child to any to allow config prop
-            React.cloneElement(child as any, { config })
-          : child,
-      )}
-    </div>
+    <ChartContext.Provider value={config}>
+      <div className="w-full h-[300px]">{children}</div>
+    </ChartContext.Provider>
   )
 }
 
