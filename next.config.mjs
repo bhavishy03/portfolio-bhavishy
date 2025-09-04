@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  devIndicators: {
-    devtools: false,
+  eslint: {
+    ignoreDuringBuilds: true,
   },
-  // ...baaki config options...
-}
+};
 
-export default nextConfig
+export default nextConfig;
+

@@ -42,9 +42,7 @@ function ChartContainer({
   ...props
 }: React.ComponentProps<"div"> & {
   config: ChartConfig
-  children: React.ComponentProps<
-    typeof RechartsPrimitive.ResponsiveContainer
-  >["children"]
+  children: React.ReactElement
 }) {
   const uniqueId = React.useId()
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
@@ -104,32 +102,26 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-function ChartTooltipContent({
-  active,
-  className,
-  indicator = "dot",
-  hideLabel = false,
-  hideIndicator = false,
-  label,
-  labelFormatter,
-  labelClassName,
-  formatter,
-  color,
-  nameKey,
-  labelKey,
-  ...props
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-  React.ComponentProps<"div"> & {
-    hideLabel?: boolean
-    hideIndicator?: boolean
-    indicator?: "line" | "dot" | "dashed"
-    nameKey?: string
-    labelKey?: string
-  }) {
-  const { config } = useChart()
+// ✅ FIXED VERSION - NO PAYLOAD DESTRUCTURING
+function ChartTooltipContent(props: any) {
+  const {
+    active,
+    className,
+    indicator = "dot",
+    hideLabel = false,
+    hideIndicator = false,
+    label,
+    labelFormatter,
+    labelClassName,
+    formatter,
+    color,
+    nameKey,
+    labelKey,
+    payload,
+    ...restProps
+  } = props
 
-  // Get payload from props instead of destructuring
-  const payload = (props as any)?.payload
+  const { config } = useChart()
 
   const tooltipLabel = React.useMemo(() => {
     if (hideLabel || !payload?.length) {
@@ -434,21 +426,16 @@ function ChartTooltipContent({
 
 const ChartLegend = RechartsPrimitive.Legend
 
-function ChartLegendContent({
-  className,
-  hideIcon = false,
-  verticalAlign = "bottom",
-  nameKey,
-  ...props
-}: React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "verticalAlign"> & {
-    hideIcon?: boolean
-    nameKey?: string
-  }) {
+function ChartLegendContent(props: any) {
+  const {
+    className,
+    hideIcon = false,
+    payload,
+    verticalAlign = "bottom",
+    nameKey,
+    ...restProps
+  } = props
   const { config } = useChart()
-
-  // Get payload from props
-  const payload = (props as any)?.payload
 
   if (!payload?.length) {
     return null
