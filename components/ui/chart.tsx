@@ -18,7 +18,7 @@ import {
   YAxis,
 } from "recharts"
 import { cn } from "@/lib/utils"
-import { TooltipProps } from "recharts"
+import type { TooltipProps } from "recharts"
 
 type ChartConfig = {
   [key: string]: {
@@ -33,13 +33,7 @@ interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
 
 function Chart({ children, className, ...props }: ChartProps) {
   return (
-    <div
-      className={cn(
-        "flex items-center justify-center rounded-lg border bg-background p-4",
-        className
-      )}
-      {...props}
-    >
+    <div className={cn("flex items-center justify-center rounded-lg border bg-background p-4", className)} {...props}>
       {children}
     </div>
   )
@@ -56,8 +50,9 @@ function ChartContainer({
     <div className="w-full h-[300px]">
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
-          ? React.cloneElement(child, { config })
-          : child
+          ? // Fixed TypeScript error by casting child to any to allow config prop
+            React.cloneElement(child as any, { config })
+          : child,
       )}
     </div>
   )
@@ -84,28 +79,15 @@ function ChartTooltipContent({
   }
 
   return (
-    <div
-      className={cn(
-        "rounded-lg border bg-background p-2 shadow-md",
-        className
-      )}
-    >
-      {!hideLabel && (
-        <div className="mb-1 text-sm font-medium">{label}</div>
-      )}
+    <div className={cn("rounded-lg border bg-background p-2 shadow-md", className)}>
+      {!hideLabel && <div className="mb-1 text-sm font-medium">{label}</div>}
       {payload.map((item, index) => (
         <div key={index} className="flex items-center gap-2 text-sm">
           {!hideIndicator && indicator === "dot" && (
-            <span
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: item.color }}
-            />
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
           )}
           {!hideIndicator && indicator === "line" && (
-            <span
-              className="h-0.5 w-3"
-              style={{ backgroundColor: item.color }}
-            />
+            <span className="h-0.5 w-3" style={{ backgroundColor: item.color }} />
           )}
           <span>{item.name}:</span>
           <span className="font-medium">{item.value}</span>
